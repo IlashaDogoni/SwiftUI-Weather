@@ -8,36 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var isNight = false
+    
     var body: some View {
         ZStack {
-            BackgroundView(color1: .yellow, color2: .blue, color3: .blue, color4: .white)
+            BackgroundView(isNight: $isNight)
             
             VStack{
                 CityTextView(cityName: "Omsk, Russia")
                 
-                MainWeatherView(imageName: "cloud.sun.fill", temperature: 20)
+                MainWeatherView(imageName: isNight ? "moon.stars.fill" : "cloud.sun.fill", temperature: 20)
                 
                 HStack(spacing: 25){
-                    WeatherDayView(dayOfWeek: "TUE",
-                                   imageName: "cloud.sun.fill",
-                                   temperature: 20)
-                    WeatherDayView(dayOfWeek: "WED",
-                                   imageName: "cloud.sun.bolt.fill",
-                                   temperature: 16)
-                    WeatherDayView(dayOfWeek: "THU",
-                                   imageName: "cloud.heavyrain.fill",
-                                   temperature: 11)
-                    WeatherDayView(dayOfWeek: "FRI",
-                                   imageName: "sun.max.fill",
-                                   temperature: 28)
-                    WeatherDayView(dayOfWeek: "SAT",
-                                   imageName: "cloud.drizzle.fill",
-                                   temperature: 20)
+                    ForEach(sampleWeatherData, id: \.dayOfWeek) {weather in
+                        WeatherDayView(dayOfWeek: weather.dayOfWeek, imageName: weather.imageName, temperature: weather.temperature)
+                    }
                 }
                 Spacer()
                 
                 Button{
-                    print("tapped")
+                    isNight.toggle()
                 } label: {
                     WeatherButton(title: "Change Day Time",
                                   backgroungColor: .white,
@@ -76,13 +67,13 @@ struct WeatherDayView: View {
 }
 
 struct BackgroundView: View {
-    var color1: Color
-    var color2: Color
-    var color3: Color
-    var color4: Color
+    @Binding var isNight: Bool
     
     var body: some View {
-        LinearGradient(gradient: Gradient(colors: [.yellow, .blue,  .blue, .lightBlue]),
+        LinearGradient(gradient: Gradient(colors: [isNight ? .black : .yellow,
+                                                   isNight ? .nightBlue : .blue,
+                                                   isNight ? .nightBlue : .blue,
+                                                   isNight ? .gray : .lightBlue]),
                        startPoint: .topLeading,
                        endPoint: .bottomTrailing)
         .edgesIgnoringSafeArea(.all)
