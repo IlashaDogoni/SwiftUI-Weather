@@ -7,16 +7,40 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View, WeatherManagerDelegate {
+    
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
+        
+        self.weather = weather
+        print("City: \(weather.cityName), Temperature: \(weather.temperature)")
+        self.nameOfCity = weather.cityName
+        print(self.nameOfCity)
+    }
+    
+    func didFailedWithError(error: any Error) {
+        print("Error fetching weather: \(error)")
+    }
+    
     
     @State private var isNight = false
+    @State private var nameOfCity = "Somewhere in Russia"
+    var weatherManager = WeatherManager()
+    @State var weather: WeatherModel?
+    
+    
+    init() {
+           weatherManager.delegate = self
+        
+       }
     
     var body: some View {
+        
         ZStack {
             BackgroundView(isNight: $isNight)
             
             VStack{
-                CityTextView(cityName: "Omsk, Russia")
+                
+                CityTextView(cityName: nameOfCity)
                 
                 MainWeatherView(imageName: isNight ? "moon.stars.fill" : "cloud.sun.fill", temperature: 20)
                 
@@ -28,17 +52,34 @@ struct ContentView: View {
                 Spacer()
                 
                 Button{
+                    weatherManager.fetchWeather(cityName: "Moscow")
+         //           if let weather = weather{
+         //               nameOfCity = weather.cityName
+          //          } else {
+          //              nameOfCity = "Nowhere"
+           //         }
+                } label: {
+                    WeatherButton(title: "Moscow Weather",
+                                  backgroungColor: .white,
+                                  textColor: .blue)
+                }
+                
+                Button{
                     isNight.toggle()
                 } label: {
                     WeatherButton(title: "Change Day Time",
                                   backgroungColor: .white,
                                   textColor: .blue)
                 }
+                
                 Spacer()
             }
         }
      }
+   
 }
+
+
 
 #Preview {
     ContentView()
@@ -81,6 +122,7 @@ struct BackgroundView: View {
 }
 
 struct CityTextView: View{
+    
     var cityName: String
     
     var body: some View{
